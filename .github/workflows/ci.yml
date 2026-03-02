@@ -103,12 +103,12 @@ jobs:
           } else {
             const formatPet = (pet) => {
               if (!pet) return '';
-              return `ID: ${pet.id || 'N/A'}, Name: ${pet.name || 'N/A'}, Status: ${pet.status || 'N/A'}`;
+              return `ID: ${pet.id || 'N/A'}<br>Name: ${pet.name || 'N/A'}<br>Status: ${pet.status || 'N/A'}`;
             };
 
             const formatOrder = (order) => {
               if (!order) return '';
-              return `ID: ${order.id || 'N/A'}, PetID: ${order.petId || 'N/A'}, Qty: ${order.quantity || 'N/A'}, Status: ${order.status || 'N/A'}`;
+              return `ID: ${order.id || 'N/A'}<br>PetID: ${order.petId || 'N/A'}<br>Qty: ${order.quantity || 'N/A'}<br>Status: ${order.status || 'N/A'}`;
             };
 
             for (const summary of summaries) {
