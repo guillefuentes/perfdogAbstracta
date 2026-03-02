@@ -3,10 +3,11 @@ import { Pet } from '@models/api.types';
 
 type Summary = {
   total: number;
-  available: number;
-  pending: number;
-  sold: number;
-  createdPetIds: number[];
+  createdPets: Array<{
+    id?: number;
+    name?: string;
+    status?: string;
+  }>;
 };
 
 test.describe('Petstore API - Mandatory Test #1', () => {
@@ -15,7 +16,11 @@ test.describe('Petstore API - Mandatory Test #1', () => {
   test.afterEach(async ({}, testInfo) => {
     if (!lastSummary) return;
 
-    const payload = { test: testInfo.titlePath.join(' > '), lastSummary };
+    const payload = {
+      test: testInfo.titlePath.join(' > '),
+      total: lastSummary.total,
+      createdPets: lastSummary.createdPets,
+    };
 
     console.log(`TEST_SUMMARY:${JSON.stringify(payload)}`);
     lastSummary = null;
@@ -23,10 +28,8 @@ test.describe('Petstore API - Mandatory Test #1', () => {
 
   test('Create Pets and Retrieve Sold Pet', async ({ actions, assert }) => {
     const createdPetIds: number[] = [];
+    const createdPets: Array<{ id?: number; name?: string; status?: string }> = [];
     let soldPet: Pet;
-    let availableCreated = 0;
-    let pendingCreated = 0;
-    let soldCreated = 0;
 
     await test.step('Create 5 pets with status "available"', async () => {
       console.log('\n=== Creating 5 pets with status "available" ===');
@@ -44,10 +47,10 @@ test.describe('Petstore API - Mandatory Test #1', () => {
 
         await test.step(`Save pet ${i}/5 ID`, async () => {
             createdPetIds.push(createdPet.id!);
+            createdPets.push({ id: createdPet.id, name: createdPet.name, status: createdPet.status });
             console.log(`✓ Created pet ${i}/5: ${petName} (ID: ${createdPet.id})`);
             await delay(100);
         });
-        availableCreated += 1;
       }
       console.log(`Total available pets created: 5`);
     });
@@ -69,10 +72,10 @@ test.describe('Petstore API - Mandatory Test #1', () => {
 
         await test.step(`Save pet ${i}/4 ID`, async () => {
           createdPetIds.push(createdPet.id!);
+          createdPets.push({ id: createdPet.id, name: createdPet.name, status: createdPet.status });
           console.log(`✓ Created pet ${i}/4: ${petName} (ID: ${createdPet.id})`);
           await delay(100);
         });
-        pendingCreated += 1;
       }
 
       console.log(`Total pending pets created: 4`);
@@ -95,10 +98,10 @@ test.describe('Petstore API - Mandatory Test #1', () => {
 
       await test.step('Save sold pet ID', async () => {
         createdPetIds.push(soldPet.id!);
+        createdPets.push({ id: soldPet.id, name: soldPet.name, status: soldPet.status });
         console.log(`✓ Created pet: ${petName} (ID: ${soldPet.id})`);
         console.log(`Total sold pets created: 1`);
       });
-      soldCreated += 1;
     });
 
     await test.step('Retrieve details of the sold pet', async () => {
@@ -139,11 +142,8 @@ test.describe('Petstore API - Mandatory Test #1', () => {
     });
 
     lastSummary = {
-      createdPetIds: [...createdPetIds],
       total: createdPetIds.length,
-      available: availableCreated,
-      pending: pendingCreated,
-      sold: soldCreated,
+      createdPets: [...createdPets],
     };
 
     await test.step('Cleanup created pets', async () => {

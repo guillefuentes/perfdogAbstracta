@@ -110,7 +110,11 @@ jobs:
                 const label = key
                   .replace(/([a-z])([A-Z])/g, '$1 $2')
                   .replace(/^./, character => character.toUpperCase());
-                markdown.push(`| ${label} | ${String(value)} |`);
+                const renderedValue =
+                  value !== null && typeof value === 'object'
+                    ? `\`${JSON.stringify(value)}\``
+                    : String(value);
+                markdown.push(`| ${label} | ${renderedValue} |`);
               }
               markdown.push('');
             }
