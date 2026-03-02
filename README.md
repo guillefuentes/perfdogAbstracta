@@ -102,16 +102,6 @@ The demo Petstore API has some quirks:
 
 The framework handles these gracefully with try-catch blocks and appropriate logging.
 
-## What Makes This Stand Out
-
-Unlike basic Playwright tests, this framework demonstrates:
-
-1. **Professional Architecture** - Clear separation between actions and assertions
-2. **Advanced Patterns** - Builder, Factory, and Facade patterns
-3. **Multiple Styles** - Traditional, fluent, and semantic assertion approaches
-4. **Production-Ready** - Type safety, error handling, scalability
-5. **Maintainability** - Centralized logic, reusable components
-
 ## Contributing
 
 To extend the framework:
