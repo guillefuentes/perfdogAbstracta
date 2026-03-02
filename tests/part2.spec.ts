@@ -31,7 +31,8 @@ test.describe('Petstore API - Mandatory Test #2 ', () => {
       createdOrders: lastSummary.createdOrders,
     };
 
-    console.log(`TEST_SUMMARY:${JSON.stringify(payload)}`);
+    // Only output TEST_SUMMARY in CI environment
+    if (process.env.CI) console.log(`TEST_SUMMARY:${JSON.stringify(payload)}`);
     lastSummary = null;
   });
   test('List Available Pets and Create Orders', async ({ actions, assert }) => {

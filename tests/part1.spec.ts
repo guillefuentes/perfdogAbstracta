@@ -24,7 +24,8 @@ test.describe('Petstore API - Mandatory Test #1', () => {
       soldPets: lastSummary.createdPets.filter(pet => pet.status === 'sold'),
     };
 
-    console.log(`TEST_SUMMARY:${JSON.stringify(payload)}`);
+    // Only output TEST_SUMMARY in CI environment
+    if (process.env.CI) console.log(`TEST_SUMMARY:${JSON.stringify(payload)}`);
     lastSummary = null;
   });
 
