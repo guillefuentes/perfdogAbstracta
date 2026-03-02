@@ -2,6 +2,11 @@ import { test, delay } from '../fixtures/ActionsAndAssertions';
 import { Pet, Order } from '@models/api.types';
 
 type Summary = {
+  selectedPets: Array<{
+    id?: number;
+    name?: string;
+    status?: string;
+  }>;
   totalOrders: number;
   createdOrders: Array<{
     id?: number;
@@ -11,7 +16,7 @@ type Summary = {
   }>;
 };
 
-test.describe('Part 2: List Available Pets and Create Orders', () => {
+test.describe('Petstore API - Mandatory Test #2 ', () => {
   let lastSummary: Summary | null = null;
 
   test.afterEach(async ({}, testInfo) => {
@@ -21,6 +26,7 @@ test.describe('Part 2: List Available Pets and Create Orders', () => {
 
     const payload = {
       test: testInfo.titlePath.join(' > '),
+      selectedPets: lastSummary.selectedPets,
       totalOrders: lastSummary.totalOrders,
       createdOrders: lastSummary.createdOrders,
     };
@@ -28,7 +34,7 @@ test.describe('Part 2: List Available Pets and Create Orders', () => {
     console.log(`TEST_SUMMARY:${JSON.stringify(payload)}`);
     lastSummary = null;
   });
-  test('Complete Part 2 workflow', async ({ actions, assert }) => {
+  test('List Available Pets and Create Orders', async ({ actions, assert }) => {
     const selectedPets: Pet[] = [];
     const createdOrderIds: number[] = [];
     const createdOrders: Array<{ id?: number; petId?: number; quantity?: number; status?: string }> = [];
@@ -149,6 +155,11 @@ test.describe('Part 2: List Available Pets and Create Orders', () => {
     });
 
     lastSummary = {
+      selectedPets: selectedPets.map(pet => ({
+        id: pet.id,
+        name: pet.name,
+        status: pet.status,
+      })),
       totalOrders: createdOrderIds.length,
       createdOrders: [...createdOrders],
     };

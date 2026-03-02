@@ -101,6 +101,31 @@ jobs:
           if (summaries.length === 0) {
             markdown.push('- No `TEST_SUMMARY` entries were found in test output.');
           } else {
+            const formatValue = (value) => {
+              if (Array.isArray(value)) {
+                if (value.length === 0) return '(empty)';
+                return value
+                  .map((item, index) => {
+                    if (item !== null && typeof item === 'object') {
+                      const fields = Object.entries(item)
+                        .map(([fieldKey, fieldValue]) => `${fieldKey}: ${String(fieldValue)}`)
+                        .join(', ');
+                      return `${index + 1}. ${fields}`;
+                    }
+                    return `${index + 1}. ${String(item)}`;
+                  })
+                  .join('<br>');
+              }
+
+              if (value !== null && typeof value === 'object') {
+                return Object.entries(value)
+                  .map(([fieldKey, fieldValue]) => `${fieldKey}: ${String(fieldValue)}`)
+                  .join(', ');
+              }
+
+              return String(value);
+            };
+
             for (const summary of summaries) {
               markdown.push(`#### ${summary.test || '(unknown test)'}`);
               markdown.push('| Field | Value |');
@@ -110,10 +135,7 @@ jobs:
                 const label = key
                   .replace(/([a-z])([A-Z])/g, '$1 $2')
                   .replace(/^./, character => character.toUpperCase());
-                const renderedValue =
-                  value !== null && typeof value === 'object'
-                    ? `\`${JSON.stringify(value)}\``
-                    : String(value);
+                const renderedValue = formatValue(value).replace(/\|/g, '\\|');
                 markdown.push(`| ${label} | ${renderedValue} |`);
               }
               markdown.push('');
