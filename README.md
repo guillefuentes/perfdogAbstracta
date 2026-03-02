@@ -56,25 +56,6 @@ Run with detailed output:
 npm test -- --reporter=list
 ```
 
-## Project Structure
-
-```
-perfdog/
-├── actions/                    # API interaction layer (pure API calls)
-│   └── petstore.actions.ts
-├── apiAssertions/              # Validation layer (custom assertions)
-│   └── petstore.assertions.ts
-├── tests/                      # Test suites
-│   ├── part1.spec.ts          # Part 1 requirements
-│   ├── part2.spec.ts          # Part 2 requirements
-│   └── assertions.demo.spec.ts # Advanced patterns showcase
-├── helpers/                    # Utilities and test data builders
-│   └── test.utils.ts
-├── types/                      # TypeScript type definitions
-│   └── api.types.ts
-└── fixtures/                   # Custom Playwright fixtures (if needed)
-```
-
 ## Key Features
 
 ### 🏗️ **Separation of Concerns**
@@ -100,60 +81,6 @@ PetStoreAssertions
 - IDE auto-completion support
 - Compile-time error detection
 
-## Example Test
-
-```typescript
-import { test } from '@playwright/test';
-import { PetStoreActions } from '../actions/petstore.actions';
-import { PetStoreAssertions } from '../apiAssertions/petstore.assertions';
-import { createPetObject, generatePetName } from '../helpers/test.utils';
-
-test('create and validate pet', async ({ request }) => {
-  const actions = new PetStoreActions(request);
-  const assertions = new PetStoreAssertions();
-
-  // Create pet using action
-  const petData = createPetObject(generatePetName('TestPet'), 'available');
-  const { pet, response } = await actions.createPet(petData);
-
-  // Validate using custom assertions
-  assertions
-    .expectSuccessfulResponse(response)
-    .expectValidPet(pet);
-
-  // Or use fluent API
-  PetStoreAssertions
-    .forPet(pet)
-    .withStatus('available')
-    .withName(petData.name);
-});
-```
-
-## Documentation
-
-- **[API_TESTING_GUIDE.md](API_TESTING_GUIDE.md)** - Complete framework documentation
-- **[WHAT_MAKES_THIS_STAND_OUT.md](WHAT_MAKES_THIS_STAND_OUT.md)** - Key differentiators
-- **[FRAMEWORK_SUMMARY.md](FRAMEWORK_SUMMARY.md)** - Architecture overview
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Design patterns and data flow
-- **[PRESENTATION_GUIDE.md](PRESENTATION_GUIDE.md)** - Demo script for presentations
-
-## Code Quality
-
-This project follows best practices:
-- ✅ TypeScript for type safety
-- ✅ Separation of concerns architecture
-- ✅ Reusable actions and assertions
-- ✅ Self-documenting code
-- ✅ Comprehensive error handling
-
-## Design Patterns
-
-The framework implements several design patterns:
-- **Builder Pattern** - Fluent assertion chains
-- **Factory Pattern** - Test data creation
-- **Facade Pattern** - Simplified API interface
-- **Method Chaining** - Concise test syntax
-
 ## API Endpoint
 
 All tests target the Petstore Swagger API:
@@ -165,9 +92,6 @@ All tests target the Petstore Swagger API:
 Currently includes:
 - ✅ **Part 1**: Create 10 pets with different statuses, retrieve sold pet
 - ✅ **Part 2**: List available pets, create 5 orders
-- ✅ **Demo Suite**: Showcase of advanced assertion patterns
-
-**5/5 tests passing (100% pass rate)**
 
 ## Known API Limitations
 
@@ -188,8 +112,6 @@ Unlike basic Playwright tests, this framework demonstrates:
 4. **Production-Ready** - Type safety, error handling, scalability
 5. **Maintainability** - Centralized logic, reusable components
 
-See [WHAT_MAKES_THIS_STAND_OUT.md](WHAT_MAKES_THIS_STAND_OUT.md) for detailed comparison.
-
 ## Contributing
 
 To extend the framework:
@@ -203,15 +125,3 @@ The architecture makes it trivial to scale!
 ## License
 
 This project is for demonstration purposes.
-
-## Author
-
-Built as a technical assessment showcasing senior-level API testing patterns with Playwright.
-
----
-
-**🚀 Ready to see advanced patterns in action?**
-
-```bash
-npm test assertions.demo.spec.ts
-```
