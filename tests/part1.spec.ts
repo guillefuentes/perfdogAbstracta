@@ -15,13 +15,7 @@ test.describe('Petstore API - Mandatory Test #1', () => {
   test.afterEach(async ({}, testInfo) => {
     if (!lastSummary) return;
 
-    const payload = {
-      test: testInfo.titlePath.join(' > '),
-      total: lastSummary.total,
-      available: lastSummary.available,
-      pending: lastSummary.pending,
-      sold: lastSummary.sold,
-    };
+    const payload = { test: testInfo.titlePath.join(' > '), lastSummary };
 
     console.log(`TEST_SUMMARY:${JSON.stringify(payload)}`);
     lastSummary = null;
