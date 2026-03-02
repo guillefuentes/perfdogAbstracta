@@ -53,6 +53,8 @@ test.describe('Part 2: List Available Pets and Create Orders', () => {
         await test.step(`Verify pet ${selectedPets.length + 1}/5 is valid`, async () => {
           assert.expectValidPet(pet);
           assert.expectPetStatus(pet, 'available');
+          // Fluent assertion example for pet validation
+          assert.fluent.forPet(pet).withStatus('available').withId(pet.id!);
         });
 
         selectedPets.push(pet);
@@ -90,6 +92,8 @@ test.describe('Part 2: List Available Pets and Create Orders', () => {
             quantity: 1,
             status: 'placed'
           });
+          // Fluent assertion example for order validation
+          assert.fluent.forOrder(createdOrder).withStatus('placed').forPet(pet.id!).withQuantity(1);
         });
 
         createdOrderIds.push(createdOrder.id!);

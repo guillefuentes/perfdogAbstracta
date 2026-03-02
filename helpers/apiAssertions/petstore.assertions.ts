@@ -2,6 +2,11 @@ import { expect, APIResponse } from '@playwright/test';
 import { Pet, PetStatus, Order, OrderStatus } from '@models/api.types';
 
 export class PetStoreAssertions {
+  readonly fluent = {
+    forPet: (pet: Pet) => PetStoreAssertions.forPet(pet),
+    forOrder: (order: Order) => PetStoreAssertions.forOrder(order),
+  };
+
   //GENERAL ASSERTIONS
 
   /** Assert that a value is defined (not null or undefined). */

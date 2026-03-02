@@ -9,7 +9,7 @@ type Summary = {
   createdPetIds: number[];
 };
 
-test.describe('Part 1: Create Pets and Retrieve Sold Pet', () => {
+test.describe('Petstore API - Mandatory Test #1', () => {
   let lastSummary: Summary | null = null;
 
   test.afterEach(async ({}, testInfo) => {
@@ -27,7 +27,7 @@ test.describe('Part 1: Create Pets and Retrieve Sold Pet', () => {
     lastSummary = null;
   });
 
-  test('Complete Part 1 workflow', async ({ actions, assert }) => {
+  test('Create Pets and Retrieve Sold Pet', async ({ actions, assert }) => {
     const createdPetIds: number[] = [];
     let soldPet: Pet;
     let availableCreated = 0;
@@ -115,30 +115,33 @@ test.describe('Part 1: Create Pets and Retrieve Sold Pet', () => {
       const { pets: soldPets, response } = await actions.findPetsByStatus('sold');
 
       await test.step('Verify sold pet retrieval', async () => {
-        assert.expectValidPet(soldPet);
-        assert.expectSuccessfulResponse(response);
-        assert.expectNotEmpty(soldPets, 'Sold pets');
+        await test.step('Verify response', async () => {
+            assert.expectValidPet(soldPet);
+            assert.expectSuccessfulResponse(response);
+            assert.expectNotEmpty(soldPets, 'Sold pets');
+        });
 
         const retrievedPet = soldPets.find(p => p.name === soldPet.name);
 
-        assert.expectDefined(retrievedPet, 'Should find the sold pet by name');
-        assert.expectPetToHave(retrievedPet!, { name: soldPet.name, status: 'sold' });
+        await test.step('Verify sold pet details', async () => {
+            assert.expectDefined(retrievedPet, 'Should find the sold pet by name');
+            assert.expectPetToHave(retrievedPet!, { name: soldPet.name, status: 'sold' });
+            //Fluent assertion example for retrieved pet details
+            assert.fluent.forPet(retrievedPet!).withName(soldPet.name).withStatus('sold');
+        });
       });
 
-      const retrievedPet = soldPets.find(p => p.name === soldPet.name);
-      console.log(`✓ Successfully retrieved sold pet details:`);
-      console.log(`  - ID: ${retrievedPet?.id}`);
-      console.log(`  - Name: ${retrievedPet?.name}`);
-      console.log(`  - Status: ${retrievedPet?.status}`);
-      console.log(`  - Photo URLs: ${retrievedPet?.photoUrls?.join(', ')}`);
+        await test.step('Print sold pet details', async () => {
+            const retrievedPet = soldPets.find(p => p.name === soldPet.name);
+            console.log(`✓ Successfully retrieved sold pet details:`);
+            console.log(`  - ID: ${retrievedPet?.id}`);
+            console.log(`  - Name: ${retrievedPet?.name}`);
+            console.log(`  - Status: ${retrievedPet?.status}`);
+            console.log(`  - Photo URLs: ${retrievedPet?.photoUrls?.join(', ')}`);
 
-      if (retrievedPet?.category) {
-        console.log(`  - Category: ${retrievedPet.category.name}`);
-      }
-
-      if (retrievedPet?.tags && retrievedPet.tags.length > 0) {
-        console.log(`  - Tags: ${retrievedPet.tags.map(t => t.name).join(', ')}`);
-      }
+            if (retrievedPet?.category) console.log(`  - Category: ${retrievedPet.category.name}`);
+            if (retrievedPet?.tags && retrievedPet.tags.length > 0) console.log(`  - Tags: ${retrievedPet.tags.map(t => t.name).join(', ')}`);
+        });
     });
 
     lastSummary = {

@@ -97,7 +97,7 @@ jobs:
             }
           }
 
-          markdown.push('### Per-test afterEach details');
+          markdown.push('### Individual Test Details');
           if (summaries.length === 0) {
             markdown.push('- No `TEST_SUMMARY` entries were found in test output.');
           } else {
