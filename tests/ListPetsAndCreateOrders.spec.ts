@@ -20,9 +20,7 @@ test.describe('Petstore API - Mandatory Test #2 ', () => {
   let lastSummary: Summary | null = null;
 
   test.afterEach(async ({}, testInfo) => {
-    if (!lastSummary) {
-      return;
-    }
+    if (!lastSummary) return;
 
     const payload = {
       test: testInfo.titlePath.join(' > '),
