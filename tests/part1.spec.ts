@@ -18,8 +18,10 @@ test.describe('Petstore API - Mandatory Test #1', () => {
 
     const payload = {
       test: testInfo.titlePath.join(' > '),
-      total: lastSummary.total,
-      createdPets: lastSummary.createdPets,
+      totalCreated: lastSummary.total,
+      availablePets: lastSummary.createdPets.filter(pet => pet.status === 'available'),
+      pendingPets: lastSummary.createdPets.filter(pet => pet.status === 'pending'),
+      soldPets: lastSummary.createdPets.filter(pet => pet.status === 'sold'),
     };
 
     console.log(`TEST_SUMMARY:${JSON.stringify(payload)}`);

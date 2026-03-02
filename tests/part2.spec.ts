@@ -3,7 +3,12 @@ import { Pet, Order } from '@models/api.types';
 
 type Summary = {
   totalOrders: number;
-  selectedPets: number;
+  createdOrders: Array<{
+    id?: number;
+    petId?: number;
+    quantity?: number;
+    status?: string;
+  }>;
 };
 
 test.describe('Part 2: List Available Pets and Create Orders', () => {
@@ -17,7 +22,7 @@ test.describe('Part 2: List Available Pets and Create Orders', () => {
     const payload = {
       test: testInfo.titlePath.join(' > '),
       totalOrders: lastSummary.totalOrders,
-      selectedPets: lastSummary.selectedPets,
+      createdOrders: lastSummary.createdOrders,
     };
 
     console.log(`TEST_SUMMARY:${JSON.stringify(payload)}`);
@@ -26,6 +31,7 @@ test.describe('Part 2: List Available Pets and Create Orders', () => {
   test('Complete Part 2 workflow', async ({ actions, assert }) => {
     const selectedPets: Pet[] = [];
     const createdOrderIds: number[] = [];
+    const createdOrders: Array<{ id?: number; petId?: number; quantity?: number; status?: string }> = [];
 
     await test.step('List available pets and save 5 of them', async () => {
       console.log('\n=== Listing available pets ===');
@@ -97,6 +103,12 @@ test.describe('Part 2: List Available Pets and Create Orders', () => {
         });
 
         createdOrderIds.push(createdOrder.id!);
+        createdOrders.push({
+          id: createdOrder.id,
+          petId: createdOrder.petId,
+          quantity: createdOrder.quantity,
+          status: createdOrder.status,
+        });
         console.log(`✓ Order created successfully - Order ID: ${createdOrder.id}`);
 
         await delay(100);
@@ -138,7 +150,7 @@ test.describe('Part 2: List Available Pets and Create Orders', () => {
 
     lastSummary = {
       totalOrders: createdOrderIds.length,
-      selectedPets: selectedPets.length,
+      createdOrders: [...createdOrders],
     };
 
     // Cleanup: Delete all created orders
