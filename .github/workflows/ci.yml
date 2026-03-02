@@ -35,33 +35,47 @@ jobs:
       - name: Write test summary
         if: always()
         run: |
-          node -e "const fs=require('fs');
-          const path='playwright-report/output.log';
-          if(!fs.existsSync(path)){console.log('No output.log found');process.exit(0);}
-          const lines=fs.readFileSync(path,'utf8').split(/\r?\n/);
-          const summaries=[];
-          for(const line of lines){
-            if(line.startsWith('TEST_SUMMARY:')){
-              try{ summaries.push(JSON.parse(line.replace('TEST_SUMMARY:',''))); }catch(e){}
+          node <<'NODE'
+          const fs = require('fs');
+          const path = 'playwright-report/output.log';
+
+          if (!fs.existsSync(path)) {
+            console.log('No output.log found');
+            process.exit(0);
+          }
+
+          const lines = fs.readFileSync(path, 'utf8').split(/\r?\n/);
+          const summaries = [];
+
+          for (const line of lines) {
+            if (line.startsWith('TEST_SUMMARY:')) {
+              try {
+                summaries.push(JSON.parse(line.replace('TEST_SUMMARY:', '')));
+              } catch (_error) {}
             }
           }
-          const out=[];
+
+          const out = [];
           out.push('### Test Summary');
-          if(summaries.length===0){
+
+          if (summaries.length === 0) {
             out.push('- No TEST_SUMMARY entries found in output');
           } else {
-            for(const s of summaries){
-              out.push(`- ${s.test || '(unknown test)'}`);
-              for(const [key,value] of Object.entries(s)){
-                if(key==='test') continue;
-                const label=key
-                  .replace(/([a-z])([A-Z])/g,'$1 $2')
-                  .replace(/^./,c=>c.toUpperCase());
+            for (const summary of summaries) {
+              out.push(`- ${summary.test || '(unknown test)'}`);
+
+              for (const [key, value] of Object.entries(summary)) {
+                if (key === 'test') continue;
+                const label = key
+                  .replace(/([a-z])([A-Z])/g, '$1 $2')
+                  .replace(/^./, character => character.toUpperCase());
                 out.push(`  - ${label}: ${value}`);
               }
             }
           }
-          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, out.join('\n')+'\n');"
+
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${out.join('\n')}\n`);
+          NODE
 
       - name: Upload Playwright report
         if: always()
