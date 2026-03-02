@@ -1,0 +1,33 @@
+{
+  "name": "petstore-api-tests",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Playwright API testing framework for Petstore API",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:part1": "playwright test tests/part1.spec.ts",
+    "test:part2": "playwright test tests/part2.spec.ts",
+    "report": "playwright show-report",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix"
+  },
+  "keywords": [
+    "playwright",
+    "api-testing",
+    "petstore"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.42.0",
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "eslint": "^10.0.2",
+    "eslint-plugin-playwright": "^2.9.0",
+    "typescript": "^5.3.0"
+  }
+}
