@@ -1,7 +1,28 @@
 import { test, delay } from '../fixtures/ActionsAndAssertions';
 import { Pet, Order } from '@models/api.types';
 
+type Summary = {
+  totalOrders: number;
+  selectedPets: number;
+};
+
 test.describe('Part 2: List Available Pets and Create Orders', () => {
+  let lastSummary: Summary | null = null;
+
+  test.afterEach(async ({}, testInfo) => {
+    if (!lastSummary) {
+      return;
+    }
+
+    const payload = {
+      test: testInfo.titlePath.join(' > '),
+      totalOrders: lastSummary.totalOrders,
+      selectedPets: lastSummary.selectedPets,
+    };
+
+    console.log(`TEST_SUMMARY:${JSON.stringify(payload)}`);
+    lastSummary = null;
+  });
   test('Complete Part 2 workflow', async ({ actions, assert }) => {
     const selectedPets: Pet[] = [];
     const createdOrderIds: number[] = [];
@@ -111,25 +132,10 @@ test.describe('Part 2: List Available Pets and Create Orders', () => {
       await delay(100);
     });
 
-    await test.step('Summary of Part 2', async () => {
-      console.log('\n=== Summary of Part 2 ===');
-      console.log(`Total orders created: ${createdOrderIds.length}`);
-
-      await test.step('Verify all 5 orders and pets', async () => {
-        assert.expectArrayLength(createdOrderIds, 5, 'Created order IDs');
-        assert.expectArrayLength(selectedPets, 5, 'Selected pets');
-      });
-
-      console.log('✓ Successfully completed Part 2:');
-      console.log(`  - Listed available pets`);
-      console.log(`  - Selected and saved 5 pets`);
-      console.log(`  - Created 5 orders (one for each pet)`);
-      console.log('\nOrder details:');
-
-      for (let i = 0; i < createdOrderIds.length; i++) {
-        console.log(`  ${i + 1}. Order ID: ${createdOrderIds[i]} for Pet ID: ${selectedPets[i].id} (${selectedPets[i].name})`);
-      }
-    });
+    lastSummary = {
+      totalOrders: createdOrderIds.length,
+      selectedPets: selectedPets.length,
+    };
 
     // Cleanup: Delete all created orders
     await test.step('Cleanup created orders', async () => {

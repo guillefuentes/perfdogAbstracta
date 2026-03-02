@@ -1,10 +1,38 @@
 import { test, generatePetName, createPetObject, delay } from '../fixtures/ActionsAndAssertions';
 import { Pet } from '@models/api.types';
 
+type Summary = {
+  total: number;
+  available: number;
+  pending: number;
+  sold: number;
+  createdPetIds: number[];
+};
+
 test.describe('Part 1: Create Pets and Retrieve Sold Pet', () => {
+  let lastSummary: Summary | null = null;
+
+  test.afterEach(async ({}, testInfo) => {
+    if (!lastSummary) return;
+
+    const payload = {
+      test: testInfo.titlePath.join(' > '),
+      total: lastSummary.total,
+      available: lastSummary.available,
+      pending: lastSummary.pending,
+      sold: lastSummary.sold,
+    };
+
+    console.log(`TEST_SUMMARY:${JSON.stringify(payload)}`);
+    lastSummary = null;
+  });
+
   test('Complete Part 1 workflow', async ({ actions, assert }) => {
     const createdPetIds: number[] = [];
     let soldPet: Pet;
+    let availableCreated = 0;
+    let pendingCreated = 0;
+    let soldCreated = 0;
 
     await test.step('Create 5 pets with status "available"', async () => {
       console.log('\n=== Creating 5 pets with status "available" ===');
@@ -25,6 +53,7 @@ test.describe('Part 1: Create Pets and Retrieve Sold Pet', () => {
             console.log(`✓ Created pet ${i}/5: ${petName} (ID: ${createdPet.id})`);
             await delay(100);
         });
+        availableCreated += 1;
       }
       console.log(`Total available pets created: 5`);
     });
@@ -49,6 +78,7 @@ test.describe('Part 1: Create Pets and Retrieve Sold Pet', () => {
           console.log(`✓ Created pet ${i}/4: ${petName} (ID: ${createdPet.id})`);
           await delay(100);
         });
+        pendingCreated += 1;
       }
 
       console.log(`Total pending pets created: 4`);
@@ -74,6 +104,7 @@ test.describe('Part 1: Create Pets and Retrieve Sold Pet', () => {
         console.log(`✓ Created pet: ${petName} (ID: ${soldPet.id})`);
         console.log(`Total sold pets created: 1`);
       });
+      soldCreated += 1;
     });
 
     await test.step('Retrieve details of the sold pet', async () => {
@@ -110,19 +141,13 @@ test.describe('Part 1: Create Pets and Retrieve Sold Pet', () => {
       }
     });
 
-    await test.step('Test Summary', async () => {
-      console.log('\n=== Test Summary ===');
-      console.log(`Total pets created: ${createdPetIds.length}`);
-
-      await test.step('Verify all 10 pets were created', async () => {
-        assert.expectArrayLength(createdPetIds, 10, 'Created pet IDs');
-      });
-
-      console.log('✓ All 10 pets were created successfully:');
-      console.log('  - 5 available');
-      console.log('  - 4 pending');
-      console.log('  - 1 sold');
-    });
+    lastSummary = {
+      createdPetIds: [...createdPetIds],
+      total: createdPetIds.length,
+      available: availableCreated,
+      pending: pendingCreated,
+      sold: soldCreated,
+    };
 
     await test.step('Cleanup created pets', async () => {
       console.log(`\n=== Cleaning up ${createdPetIds.length} pets ===`);

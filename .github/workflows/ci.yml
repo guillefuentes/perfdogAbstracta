@@ -30,88 +30,38 @@ jobs:
       - name: Run tests
         run: |
           mkdir -p playwright-report
-          npx playwright test --reporter=json > playwright-report/report.json
+          npx playwright test | tee playwright-report/output.log
 
       - name: Write test summary
         if: always()
         run: |
           node -e "const fs=require('fs');
-          const path='playwright-report/report.json';
-          if(!fs.existsSync(path)){console.log('No report.json found');process.exit(0);}
-          const report=JSON.parse(fs.readFileSync(path,'utf8'));
-          const tests=[];
-          const collectSteps=(steps, out)=>{
-            if(!Array.isArray(steps)) return;
-            for(const step of steps){
-              if(step && step.category==='test.step' && step.title){
-                out.push({name: step.title, status: step.error ? 'failed' : 'passed'});
-              }
-              if(step && Array.isArray(step.steps) && step.steps.length){
-                collectSteps(step.steps, out);
-              }
-            }
-          };
-          const walkSuite=(suite, pathParts)=>{
-            const nextPath=[...pathParts];
-            if(suite && suite.title) nextPath.push(suite.title);
-            if(Array.isArray(suite.specs)){
-              for(const spec of suite.specs){
-                const specTitle=spec && spec.title ? spec.title : '';
-                const specPath=specTitle ? [...nextPath, specTitle] : nextPath;
-                if(Array.isArray(spec.tests)){
-                  for(const test of spec.tests){
-                    const testTitle=test && test.title ? test.title : '';
-                    const titleParts=[...specPath];
-                    if(testTitle && testTitle !== specTitle) titleParts.push(testTitle);
-                    const title=titleParts.join(' > ');
-                    const results=Array.isArray(test.results) ? test.results : [];
-                    const lastResult=results[results.length-1];
-                    const status=test.status || (lastResult && lastResult.status) || 'unknown';
-                    const steps=[];
-                    collectSteps(lastResult && lastResult.steps, steps);
-                    tests.push({title, status, steps});
-                  }
-                }
-              }
-            }
-            if(Array.isArray(suite.suites)){
-              for(const child of suite.suites){
-                walkSuite(child, nextPath);
-              }
-            }
-          };
-          const suites=Array.isArray(report.suites) ? report.suites : [];
-          for(const suite of suites){ walkSuite(suite, []); }
-          const counts={passed:0, failed:0, skipped:0, timedOut:0, other:0};
-          for(const t of tests){
-            if(t.status==='passed') counts.passed++;
-            else if(t.status==='failed') counts.failed++;
-            else if(t.status==='skipped') counts.skipped++;
-            else if(t.status==='timedOut') counts.timedOut++;
-            else counts.other++;
-          }
-          const total=tests.length;
-          const lines=[];
-          lines.push('### Test Summary');
-          lines.push(`- Passed: ${counts.passed}`);
-          lines.push(`- Failed: ${counts.failed}`);
-          lines.push(`- Skipped: ${counts.skipped}`);
-          if(counts.timedOut>0) lines.push(`- Timed out: ${counts.timedOut}`);
-          if(counts.other>0) lines.push(`- Other: ${counts.other}`);
-          lines.push(`- Total: ${total}`);
-          lines.push('');
-          lines.push('### Tests and Steps');
-          for(const t of tests){
-            lines.push(`- ${t.title} (${t.status})`);
-            if(t.steps && t.steps.length){
-              for(const s of t.steps){
-                lines.push(`  - ${s.name}: ${s.status}`);
-              }
-            } else {
-              lines.push('  - (no steps recorded)');
+          const path='playwright-report/output.log';
+          if(!fs.existsSync(path)){console.log('No output.log found');process.exit(0);}
+          const lines=fs.readFileSync(path,'utf8').split(/\r?\n/);
+          const summaries=[];
+          for(const line of lines){
+            if(line.startsWith('TEST_SUMMARY:')){
+              try{ summaries.push(JSON.parse(line.replace('TEST_SUMMARY:',''))); }catch(e){}
             }
           }
-          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n')+'\n');"
+          const out=[];
+          out.push('### Test Summary');
+          if(summaries.length===0){
+            out.push('- No TEST_SUMMARY entries found in output');
+          } else {
+            for(const s of summaries){
+              out.push(`- ${s.test || '(unknown test)'}`);
+              for(const [key,value] of Object.entries(s)){
+                if(key==='test') continue;
+                const label=key
+                  .replace(/([a-z])([A-Z])/g,'$1 $2')
+                  .replace(/^./,c=>c.toUpperCase());
+                out.push(`  - ${label}: ${value}`);
+              }
+            }
+          }
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, out.join('\n')+'\n');"
 
       - name: Upload Playwright report
         if: always()
