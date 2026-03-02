@@ -76,7 +76,7 @@ jobs:
             for (const suite of report.suites || []) walkSuite(suite);
           }
 
-          markdown.push('| Passed | Failed | Skipped | Total |');
+          markdown.push('| ✅ Passed | ❌ Failed | ⏭️ Skipped | Total |');
           markdown.push('|---:|---:|---:|---:|');
           markdown.push(`| ${passed} | ${failed} | ${skipped} | ${total} |`);
           markdown.push('');
@@ -84,10 +84,14 @@ jobs:
           const summaries = [];
           if (fs.existsSync(outputLogPath)) {
             const lines = fs.readFileSync(outputLogPath, 'utf8').split(/\r?\n/);
+            const ansiRegex = /\u001b\[[0-9;]*m/g;
             for (const line of lines) {
-              if (line.startsWith('TEST_SUMMARY:')) {
+              const cleanLine = line.replace(ansiRegex, '');
+              const markerIndex = cleanLine.indexOf('TEST_SUMMARY:');
+              if (markerIndex !== -1) {
                 try {
-                  summaries.push(JSON.parse(line.slice('TEST_SUMMARY:'.length)));
+                  const payload = cleanLine.slice(markerIndex + 'TEST_SUMMARY:'.length).trim();
+                  summaries.push(JSON.parse(payload));
                 } catch (_error) {}
               }
             }
