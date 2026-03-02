@@ -101,43 +101,64 @@ jobs:
           if (summaries.length === 0) {
             markdown.push('- No `TEST_SUMMARY` entries were found in test output.');
           } else {
-            const formatValue = (value) => {
-              if (Array.isArray(value)) {
-                if (value.length === 0) return '(empty)';
-                return value
-                  .map((item, index) => {
-                    if (item !== null && typeof item === 'object') {
-                      const fields = Object.entries(item)
-                        .map(([fieldKey, fieldValue]) => `${fieldKey}: ${String(fieldValue)}`)
-                        .join(', ');
-                      return `${index + 1}. ${fields}`;
-                    }
-                    return `${index + 1}. ${String(item)}`;
-                  })
-                  .join('<br>');
-              }
+            const formatPet = (pet) => {
+              if (!pet) return '';
+              return `ID: ${pet.id || 'N/A'}, Name: ${pet.name || 'N/A'}, Status: ${pet.status || 'N/A'}`;
+            };
 
-              if (value !== null && typeof value === 'object') {
-                return Object.entries(value)
-                  .map(([fieldKey, fieldValue]) => `${fieldKey}: ${String(fieldValue)}`)
-                  .join(', ');
-              }
-
-              return String(value);
+            const formatOrder = (order) => {
+              if (!order) return '';
+              return `ID: ${order.id || 'N/A'}, PetID: ${order.petId || 'N/A'}, Qty: ${order.quantity || 'N/A'}, Status: ${order.status || 'N/A'}`;
             };
 
             for (const summary of summaries) {
               markdown.push(`#### ${summary.test || '(unknown test)'}`);
-              markdown.push('| Field | Value |');
-              markdown.push('|---|---|');
-              for (const [key, value] of Object.entries(summary)) {
-                if (key === 'test') continue;
-                const label = key
-                  .replace(/([a-z])([A-Z])/g, '$1 $2')
-                  .replace(/^./, character => character.toUpperCase());
-                const renderedValue = formatValue(value).replace(/\|/g, '\\|');
-                markdown.push(`| ${label} | ${renderedValue} |`);
+              
+              // Detect which test this is based on the keys in the summary
+              if (summary.totalCreated !== undefined && summary.availablePets !== undefined) {
+                // Part 1: Create Pets test
+                const available = summary.availablePets || [];
+                const pending = summary.pendingPets || [];
+                const sold = summary.soldPets || [];
+                const maxRows = Math.max(available.length, pending.length, sold.length);
+                
+                markdown.push('| Total Created | Available Pets | Pending Pets | Sold Pets |');
+                markdown.push('|:---:|---|---|---|');
+                
+                for (let i = 0; i < maxRows; i++) {
+                  const totalCol = i === 0 ? String(summary.totalCreated) : '';
+                  const availCol = formatPet(available[i]);
+                  const pendCol = formatPet(pending[i]);
+                  const soldCol = formatPet(sold[i]);
+                  markdown.push(`| ${totalCol} | ${availCol} | ${pendCol} | ${soldCol} |`);
+                }
+                
+              } else if (summary.selectedPets !== undefined && summary.createdOrders !== undefined) {
+                // Part 2: List and Order test
+                const selected = summary.selectedPets || [];
+                const orders = summary.createdOrders || [];
+                const maxRows = Math.max(selected.length, orders.length);
+                
+                markdown.push('| Selected Pets | Created Orders | Total Orders |');
+                markdown.push('|---|---|:---:|');
+                
+                for (let i = 0; i < maxRows; i++) {
+                  const petCol = formatPet(selected[i]);
+                  const orderCol = formatOrder(orders[i]);
+                  const totalCol = i === 0 ? String(summary.totalOrders) : '';
+                  markdown.push(`| ${petCol} | ${orderCol} | ${totalCol} |`);
+                }
+                
+              } else {
+                // Fallback for unknown test format
+                markdown.push('| Field | Value |');
+                markdown.push('|---|---|');
+                for (const [key, value] of Object.entries(summary)) {
+                  if (key === 'test') continue;
+                  markdown.push(`| ${key} | ${JSON.stringify(value)} |`);
+                }
               }
+              
               markdown.push('');
             }
           }
