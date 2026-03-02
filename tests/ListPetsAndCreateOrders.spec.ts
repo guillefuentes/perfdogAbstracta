@@ -81,10 +81,10 @@ test.describe('Petstore API - Mandatory Test #2 ', () => {
       console.log(`\n✓ Successfully saved 5 available pets to data structure`);
     });
 
-    for (let i = 0; i < 5; i++) {
-      await test.step(`Create order for pet ${i + 1}/5`, async () => {
+    for (let i = 0; i < selectedPets.length; i++) {
+      await test.step(`Create order for pet ${i + 1}/${selectedPets.length}`, async () => {
         const pet = selectedPets[i];
-        console.log(`\n=== Creating order for pet ${i + 1}/5 ===`);
+        console.log(`\n=== Creating order for pet ${i + 1}/${selectedPets.length} ===`);
         console.log(`Pet ID: ${pet.id}, Name: ${pet.name}`);
 
         const orderData: Order = {
@@ -97,7 +97,7 @@ test.describe('Petstore API - Mandatory Test #2 ', () => {
 
         const { order: createdOrder, response } = await actions.createOrder(orderData);
 
-        await test.step(`Verify order ${i + 1}/5 was created successfully`, async () => {
+        await test.step(`Verify order ${i + 1}/${selectedPets.length} was created successfully`, async () => {
           assert.expectSuccessfulResponse(response);
           assert.expectValidOrder(createdOrder);
           assert.expectOrderToHave(createdOrder, {
@@ -126,7 +126,7 @@ test.describe('Petstore API - Mandatory Test #2 ', () => {
       console.log('\n=== Verifying order creation ===');
 
       await test.step('Verify order count', async () => {
-        assert.expectCollectionSize(createdOrderIds, 5, 'Created orders');
+        assert.expectCollectionSize(createdOrderIds, selectedPets.length, 'Created orders');
       });
 
       // Note: The Petstore demo API may return duplicate IDs or have issues retrieving orders
