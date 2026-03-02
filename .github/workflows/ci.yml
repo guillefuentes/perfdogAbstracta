@@ -122,15 +122,14 @@ jobs:
                 const sold = summary.soldPets || [];
                 const maxRows = Math.max(available.length, pending.length, sold.length);
                 
-                markdown.push('| Total Created | Available Pets | Pending Pets | Sold Pets |');
-                markdown.push('|:---:|---|---|---|');
+                markdown.push('| Available Pets | Pending Pets | Sold Pets |');
+                markdown.push('|---|---|---|');
                 
                 for (let i = 0; i < maxRows; i++) {
-                  const totalCol = i === 0 ? String(summary.totalCreated) : '';
                   const availCol = formatPet(available[i]);
                   const pendCol = formatPet(pending[i]);
                   const soldCol = formatPet(sold[i]);
-                  markdown.push(`| ${totalCol} | ${availCol} | ${pendCol} | ${soldCol} |`);
+                  markdown.push(`| ${availCol} | ${pendCol} | ${soldCol} |`);
                 }
                 
               } else if (summary.selectedPets !== undefined && summary.createdOrders !== undefined) {
@@ -139,14 +138,13 @@ jobs:
                 const orders = summary.createdOrders || [];
                 const maxRows = Math.max(selected.length, orders.length);
                 
-                markdown.push('| Selected Pets | Created Orders | Total Orders |');
-                markdown.push('|---|---|:---:|');
+                markdown.push('| Selected Pets | Created Orders |');
+                markdown.push('|---|---|');
                 
                 for (let i = 0; i < maxRows; i++) {
                   const petCol = formatPet(selected[i]);
                   const orderCol = formatOrder(orders[i]);
-                  const totalCol = i === 0 ? String(summary.totalOrders) : '';
-                  markdown.push(`| ${petCol} | ${orderCol} | ${totalCol} |`);
+                  markdown.push(`| ${petCol} | ${orderCol} |`);
                 }
                 
               } else {

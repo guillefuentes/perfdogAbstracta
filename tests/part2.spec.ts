@@ -88,7 +88,7 @@ test.describe('Petstore API - Mandatory Test #2 ', () => {
 
         const orderData: Order = {
           petId: pet.id!,
-          quantity: 1,
+          quantity: (i + 1),
           shipDate: new Date().toISOString(),
           status: 'placed',
           complete: false,
@@ -101,11 +101,11 @@ test.describe('Petstore API - Mandatory Test #2 ', () => {
           assert.expectValidOrder(createdOrder);
           assert.expectOrderToHave(createdOrder, {
             petId: pet.id,
-            quantity: 1,
+            quantity: (i + 1),
             status: 'placed'
           });
           // Fluent assertion example for order validation
-          assert.fluent.forOrder(createdOrder).withStatus('placed').forPet(pet.id!).withQuantity(1);
+          assert.fluent.forOrder(createdOrder).withStatus('placed').forPet(pet.id!).withQuantity((i + 1));
         });
 
         createdOrderIds.push(createdOrder.id!);
